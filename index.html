@@ -149,12 +149,25 @@
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
         }
 
         .pr-file-btn:hover {
             border-color: #cf96fd;
             transform: translateY(-10px) scale(1.03);
-            box-shadow: 0 30px 60px rgba(207, 150, 253, 0.2);
+            box-shadow: 0 30px 60px rgba(207, 150, 253, 0.3), 0 0 30px rgba(207, 150, 253, 0.15);
+        }
+
+        .pr-file-btn .text-left {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .pr-file-btn .text-left .adobe-black {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
         }
 
         .pr-icon-tag {
@@ -170,6 +183,7 @@
             border-radius: 4px;
             margin-right: 20px;
             flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(207, 150, 253, 0.5);
         }
 
         /* Transition FX */
@@ -211,22 +225,57 @@
         .timeline-container {
             position: relative;
             transform-style: preserve-3d;
-            transform: rotateY(-10deg) rotateX(6deg);
+            transform: rotateY(-12deg) rotateX(14deg);
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 28px;
             padding-left: 50vw;
             will-change: transform, filter;
         }
 
         .track {
             height: 110px;
-            background: rgba(15, 15, 15, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(12, 12, 16, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
             position: relative;
             display: flex;
             align-items: center;
             min-width: 20000px;
+            transform-style: preserve-3d;
+            /* Bottom face — gives depth illusion */
+            box-shadow: 0 18px 0 0 rgba(0, 0, 0, 0.7), 0 19px 0 0 rgba(255, 255, 255, 0.04);
+        }
+
+        /* 3D side face on the left label area */
+        .track::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 18px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 100%);
+            transform: rotateX(-90deg) translateY(-9px);
+            transform-origin: top center;
+            pointer-events: none;
+        }
+
+        /* Per-track Z depth stacking */
+        .track:nth-child(1) {
+            transform: translateZ(80px);
+            box-shadow: 0 18px 0 0 rgba(0, 0, 0, 0.8), 0 19px 0 0 rgba(0, 242, 255, 0.06), 0 30px 40px rgba(0, 242, 255, 0.08);
+            border-color: rgba(0, 242, 255, 0.12);
+        }
+
+        .track:nth-child(2) {
+            transform: translateZ(30px);
+            box-shadow: 0 18px 0 0 rgba(0, 0, 0, 0.75), 0 19px 0 0 rgba(77, 100, 141, 0.2), 0 20px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .track:nth-child(3) {
+            transform: translateZ(-20px);
+            box-shadow: 0 18px 0 0 rgba(0, 0, 0, 0.7), 0 19px 0 0 rgba(61, 102, 77, 0.2), 0 20px 30px rgba(0, 0, 0, 0.4);
         }
 
         .track::before {
@@ -245,19 +294,23 @@
             position: absolute;
             height: 85%;
             border-radius: 2px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.22);
             background-color: #222;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transform-style: preserve-3d;
+            transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.35s ease;
+            box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.6), 0 9px 0 0 rgba(255, 255, 255, 0.03);
         }
 
         .clip:hover {
-            transform: scale(1.05) translateZ(40px);
+            transform: scale(1.04) translateZ(60px) translateY(-6px);
             z-index: 100;
             border-color: var(--accent-cyan);
+            box-shadow: 0 14px 0 0 rgba(0, 0, 0, 0.7), 0 15px 0 0 rgba(0, 242, 255, 0.08), 0 20px 40px rgba(0, 242, 255, 0.2) !important;
         }
 
         .clip-header {
@@ -431,6 +484,166 @@
         .cyber-glitch:hover {
             animation: glitch-flicker 0.1s infinite;
         }
+
+        /* Shimmer sweep for RAW TO RARE heading */
+        @keyframes shimmer-sweep {
+            0% {
+                background-position: -200% center;
+            }
+
+            100% {
+                background-position: 200% center;
+            }
+        }
+
+        @keyframes hero-scale-breathe {
+
+            0%,
+            100% {
+                letter-spacing: -0.06em;
+                opacity: 1;
+            }
+
+            50% {
+                letter-spacing: -0.04em;
+                opacity: 0.92;
+            }
+        }
+
+        .hero-shimmer {
+            background: linear-gradient(105deg,
+                    #ffffff 20%,
+                    rgba(0, 242, 255, 0.9) 38%,
+                    rgba(255, 255, 255, 1) 45%,
+                    rgba(212, 175, 55, 0.8) 52%,
+                    #ffffff 60%);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer-sweep 4s linear infinite, hero-scale-breathe 6s ease-in-out infinite;
+        }
+
+        /* ===== NEON GLOW SYSTEM ===== */
+        @keyframes neon-pulse-cyan {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(0, 242, 255, 0.3), 0 0 20px rgba(0, 242, 255, 0.15), 0 0 40px rgba(0, 242, 255, 0.05);
+            }
+
+            50% {
+                box-shadow: 0 0 16px rgba(0, 242, 255, 0.6), 0 0 40px rgba(0, 242, 255, 0.3), 0 0 80px rgba(0, 242, 255, 0.1);
+            }
+        }
+
+        @keyframes neon-pulse-magenta {
+
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(255, 0, 255, 0.3), 0 0 20px rgba(255, 0, 255, 0.15);
+            }
+
+            50% {
+                box-shadow: 0 0 16px rgba(255, 0, 255, 0.6), 0 0 40px rgba(255, 0, 255, 0.3);
+            }
+        }
+
+        @keyframes neon-text-pulse {
+
+            0%,
+            100% {
+                text-shadow: 0 0 8px currentColor, 0 0 20px currentColor;
+            }
+
+            50% {
+                text-shadow: 0 0 16px currentColor, 0 0 40px currentColor, 0 0 80px currentColor;
+            }
+        }
+
+        /* Nav neon border */
+        nav {
+            border-bottom: 1px solid rgba(0, 242, 255, 0.15) !important;
+            box-shadow: 0 1px 0 rgba(0, 242, 255, 0.08), 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        nav a:hover {
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.8), 0 0 20px rgba(0, 242, 255, 0.4);
+        }
+
+        nav button {
+            animation: neon-pulse-cyan 3s ease-in-out infinite;
+        }
+
+        /* Hero heading glow */
+        #hero h1 {
+            text-shadow: 0 0 60px rgba(0, 242, 255, 0.08);
+        }
+
+        #hero h2 span:last-child {
+            animation: neon-text-pulse 3s ease-in-out infinite;
+        }
+
+        /* Scissor icon glow */
+        .scissor-svg {
+            filter: drop-shadow(0 0 30px rgba(0, 242, 255, 0.5)) drop-shadow(0 0 80px rgba(0, 242, 255, 0.2)) !important;
+        }
+
+        /* Playhead glow */
+        .playhead {
+            animation: neon-pulse-cyan 2s ease-in-out infinite;
+        }
+
+        /* Clip hover glow */
+        .clip:hover {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4), 0 0 60px rgba(0, 242, 255, 0.15) !important;
+        }
+
+        /* Fame card glow */
+        .fame-card:hover {
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.3), 0 0 80px rgba(0, 242, 255, 0.1) !important;
+        }
+
+        /* Section headings */
+        #fame h3 {
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+
+        #contact h3 {
+            text-shadow: 0 0 12px rgba(0, 242, 255, 0.2), 0 0 25px rgba(0, 242, 255, 0.07);
+            animation: neon-text-pulse 6s ease-in-out infinite;
+        }
+
+        /* Contact form inputs */
+        #contact input:focus {
+            box-shadow: 0 1px 0 rgba(0, 242, 255, 0.6), 0 2px 20px rgba(0, 242, 255, 0.1);
+        }
+
+        /* Contact button */
+        #contact button {
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3), 0 0 60px rgba(0, 242, 255, 0.1);
+            transition: all 0.3s ease !important;
+        }
+
+        #contact button:hover {
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.6), 0 0 80px rgba(0, 242, 255, 0.2) !important;
+        }
+
+        /* Footer links */
+        footer a:hover {
+            text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+        }
+
+        /* Luxury glass section glow */
+        .luxury-glass {
+            box-shadow: 0 0 60px rgba(0, 242, 255, 0.05), inset 0 0 60px rgba(0, 242, 255, 0.02);
+            animation: neon-pulse-cyan 5s ease-in-out infinite;
+        }
+
+        /* Logo box */
+        nav .w-12 {
+            animation: neon-pulse-cyan 4s ease-in-out infinite;
+        }
     </style>
 </head>
 
@@ -489,9 +702,8 @@
                     ANIMATION</span>
             </h2>
             <h1
-                class="text-8xl md:text-[14rem] adobe-black uppercase leading-[0.7] tracking-tighter mb-10 cyber-glitch transition-all">
-                RAW TO <br> <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-magenta-500">RARE.</span>
+                class="text-8xl md:text-[14rem] adobe-black uppercase leading-[0.7] tracking-tighter mb-10 hero-shimmer">
+                RAW TO RARE.
             </h1>
             <p
                 class="adobe-bold text-gray-500 text-xl md:text-3xl tracking-[0.5em] uppercase max-w-5xl mx-auto leading-relaxed mb-24">
@@ -525,6 +737,9 @@
         <section id="portfolio" class="relative">
             <div class="timeline-viewport">
                 <div class="playhead"></div>
+                <!-- Trail Particle Canvas -->
+                <canvas id="timeline-trail-canvas"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;"></canvas>
                 <div class="timeline-container" id="timeline">
                     <!-- Video Track 2 -->
                     <div class="track" data-track="V2">
@@ -687,13 +902,85 @@
         let lastScrollTop = 0;
         let currentX = 0;
 
-        // Dynamic Motion Blur based on Scroll Velocity
+        // Dynamic Motion Blur + Trail Particles based on Scroll Velocity
+        // ---- Trail Particle System ----
+        const trailCanvas = document.getElementById('timeline-trail-canvas');
+        const tCtx = trailCanvas.getContext('2d');
+        let trailParticles = [];
+        let scrollDir = 1;
+
+        function resizeTrailCanvas() {
+            trailCanvas.width = trailCanvas.offsetWidth;
+            trailCanvas.height = trailCanvas.offsetHeight;
+        }
+        resizeTrailCanvas();
+        window.addEventListener('resize', resizeTrailCanvas);
+
+        // Track Y positions relative to the timeline viewport (approximate)
+        const TRACK_Y_OFFSETS = [0.25, 0.48, 0.71]; // V2, V1, A1 as fraction of viewport height
+
+        function spawnTrailParticles(velocity) {
+            if (velocity < 2) return;
+            const count = Math.min(Math.floor(velocity * 1.2), 18);
+            const W = trailCanvas.width;
+            const H = trailCanvas.height;
+            const colors = ['rgba(0,242,255,', 'rgba(212,175,55,', 'rgba(255,255,255,'];
+
+            for (let i = 0; i < count; i++) {
+                // Pick a random track edge (top or bottom of each track band)
+                const trackFrac = TRACK_Y_OFFSETS[Math.floor(Math.random() * 3)];
+                const edgeSide = Math.random() > 0.5 ? 1 : -1; // +1 = bottom edge, -1 = top edge
+                const bandH = H * 0.14; // approx track band height
+
+                const x = Math.random() < 0.5 ? Math.random() * W * 0.55 : W * 0.45 + Math.random() * W * 0.55;
+                const y = H * trackFrac + edgeSide * (bandH * 0.5) + (Math.random() - 0.5) * 6;
+                const spd = (2 + Math.random() * 3) * (velocity / 6);
+                const col = colors[Math.floor(Math.random() * colors.length)];
+                const len = 12 + Math.random() * velocity * 2.5;
+
+                trailParticles.push({
+                    x, y,
+                    vx: scrollDir * spd * (0.6 + Math.random() * 0.8),
+                    vy: (Math.random() - 0.5) * spd * 0.5,
+                    len,
+                    alpha: 0.55 + Math.random() * 0.35,
+                    color: col,
+                    life: 1.0,
+                    decay: 0.045 + Math.random() * 0.035
+                });
+            }
+        }
+
+        function drawTrailParticles() {
+            tCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+            trailParticles = trailParticles.filter(p => p.life > 0);
+            for (const p of trailParticles) {
+                const a = p.alpha * p.life;
+                tCtx.save();
+                tCtx.strokeStyle = p.color + a + ')';
+                tCtx.lineWidth = 1 + p.life * 1.5;
+                tCtx.lineCap = 'round';
+                tCtx.shadowBlur = 8;
+                tCtx.shadowColor = p.color + (a * 0.6) + ')';
+                tCtx.beginPath();
+                tCtx.moveTo(p.x, p.y);
+                tCtx.lineTo(p.x - p.vx * (p.len / (p.life < 0.3 ? 4 : 1)), p.y - p.vy * 4);
+                tCtx.stroke();
+                tCtx.restore();
+
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+            }
+        }
+
         function renderLoop() {
             const scrollTop = window.scrollY;
-            const velocity = Math.abs(scrollTop - lastScrollTop);
+            const rawVel = scrollTop - lastScrollTop;
+            const velocity = Math.abs(rawVel);
+            scrollDir = rawVel >= 0 ? -1 : 1; // timeline moves opposite to scroll
             lastScrollTop = scrollTop;
 
-            // Calculate blur and scale based on speed
             const blurAmount = Math.min(velocity / 12, 18);
             const scaleX = 1 + (blurAmount / 120);
 
@@ -705,13 +992,14 @@
                 if (scrollTop >= portTop && scrollTop <= portTop + portHeight) {
                     const progress = (scrollTop - portTop) / portHeight;
                     currentX = progress * -14000;
+                    spawnTrailParticles(velocity);
                 }
 
-                // Apply visual effects
                 timeline.style.filter = `blur(${blurAmount}px)`;
-                timeline.style.transform = `rotateY(-10deg) rotateX(6deg) translateX(${currentX}px) scaleX(${scaleX})`;
+                timeline.style.transform = `rotateY(-12deg) rotateX(14deg) translateX(${currentX}px) scaleX(${scaleX})`;
             }
 
+            drawTrailParticles();
             requestAnimationFrame(renderLoop);
         }
         renderLoop();
