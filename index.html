@@ -767,13 +767,10 @@
             if (fameGrid) fameGrid.style.transform = `rotateX(${-rotX / 2.5}deg) rotateY(${rotY / 2.5}deg)`;
         });
 
-        // Video Player Logic
-        const videoPlayer = document.getElementById('video-player');
-        const iframeWrapper = document.getElementById('iframe-wrapper');
-        const closeBtn = document.getElementById('close-btn');
-        const minimizeBtn = document.getElementById('minimize-btn');
-        let isMinimized = false;
-
+        // Modals & Links
+        const videoModal = document.getElementById('video-modal');
+        const modalContainer = document.getElementById('modal-container');
+        const closeModal = document.getElementById('close-modal');
         document.querySelectorAll('.clip, .fame-card').forEach(clip => {
             clip.addEventListener('click', () => {
                 const link = clip.getAttribute('data-video-link');
@@ -791,45 +788,29 @@
                     const id = link.split('youtu.be/')[1].split('?')[0];
                     formatted = `https://www.youtube.com/embed/${id}?autoplay=1`;
                 }
-                // Format YouTube watch/embed links
+                // Format YouTube watch links for Embed
                 else if (link.includes('youtube.com/watch') || link.includes('youtube.com/embed/')) {
                     const url = new URL(link);
                     const id = url.searchParams.get('v') || link.split('embed/')[1].split('?')[0];
                     if (id) formatted = `https://www.youtube.com/embed/${id}?autoplay=1`;
                 }
 
-                iframeWrapper.innerHTML = ''; // Clear previous
+                modalContainer.querySelectorAll('video, iframe').forEach(m => m.remove());
                 const iframe = document.createElement('iframe');
                 iframe.src = formatted;
-                iframe.className = "w-full h-full absolute top-0 left-0";
+                iframe.className = "w-full h-full";
                 iframe.setAttribute('allowfullscreen', 'true');
                 iframe.setAttribute('frameborder', '0');
                 iframe.setAttribute('allow', 'autoplay; fullscreen');
-                iframeWrapper.appendChild(iframe);
+                modalContainer.appendChild(iframe);
 
-                videoPlayer.style.display = 'flex';
-                // Reset minimized state when opening a new video
-                if (isMinimized) toggleMinimize();
+                videoModal.style.display = 'flex';
             });
         });
-
-        closeBtn.addEventListener('click', () => {
-            videoPlayer.style.display = 'none';
-            iframeWrapper.innerHTML = '';
+        closeModal.addEventListener('click', () => {
+            videoModal.style.display = 'none';
+            modalContainer.querySelectorAll('video, iframe').forEach(m => m.remove());
         });
-
-        function toggleMinimize() {
-            isMinimized = !isMinimized;
-            if (isMinimized) {
-                videoPlayer.classList.add('minimized');
-                minimizeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
-            } else {
-                videoPlayer.classList.remove('minimized');
-                minimizeBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 14 10 14 10 20"></polyline><polyline points="20 10 14 10 14 4"></polyline><line x1="14" y1="10" x2="21" y2="3"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>`;
-            }
-        }
-
-        minimizeBtn.addEventListener('click', toggleMinimize);
 
         // Intersection Observer for Section Entrance
         const observer = new IntersectionObserver((entries) => {
