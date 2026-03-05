@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XYAMIZ Animation | Raw to Rare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --accent-gold: #d4af37;
+            --accent-cyan: #00f2ff;
+            --accent-magenta: #ff00ff;
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --bg-deep: #050506;
+            --adobe-pr: #2e1a47;
+            --adobe-pr-light: #cf96fd;
+            --pr-video: #4d648d;
+            --pr-audio: #3d664d;
+            --cyber-glow: 0 0 15px rgba(0, 242, 255, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: #ffffff;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .adobe-bold {
+            font-weight: 800;
+            letter-spacing: -0.04em;
+        }
+
+        .adobe-black {
+            font-weight: 900;
+            letter-spacing: -0.06em;
+        }
+
+        /* Cinematic HUD & Background */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -20;
+            background:
+                radial-gradient(circle at 0% 0%, rgba(0, 242, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(255, 0, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.03) 0%, transparent 50%);
+            filter: blur(80px);
+        }
+
+        .grid-overlay {
+            position: fixed;
+            bottom: -50%;
+            left: -50%;
+            width: 200vw;
+            height: 200vh;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+            background-size: 80px 80px;
+            z-index: -15;
+            pointer-events: none;
+            transform: perspective(500px) rotateX(60deg) translateY(100px);
+            animation: gridMove 10s linear infinite;
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+            -webkit-mask-image: linear-gradient(to top, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+        }
+
+        @keyframes gridMove {
+            0% {
+                transform: perspective(500px) rotateX(60deg) translateY(0);
+            }
+
+            100% {
+                transform: perspective(500px) rotateX(60deg) translateY(80px);
+            }
+        }
+
+        /* Scanlines */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px;
+            z-index: 5001;
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        /* 3D Scissor Silhouette */
+        .scissor-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 600px;
+            z-index: 1;
+            pointer-events: none;
+            perspective: 1500px;
+            opacity: 0.15;
+        }
+
+        .scissor-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease-out;
+        }
+
+        .scissor-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 80px rgba(0, 242, 255, 0.3));
+            transform: rotate(-35deg);
+        }
+
+        /* PR Project Buttons */
+        .pr-file-btn {
+            position: relative;
+            width: 340px;
+            height: 95px;
+            background: linear-gradient(135deg, #2e1a47 0%, #1a0f2b 100%);
+            border: 1px solid rgba(207, 150, 253, 0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            padding: 0 25px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        .pr-file-btn:hover {
+            border-color: #cf96fd;
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 30px 60px rgba(207, 150, 253, 0.2);
+        }
+
+        .pr-icon-tag {
+            width: 44px;
+            height: 44px;
+            background: #cf96fd;
+            color: #2e1a47;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 20px;
+            border-radius: 4px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        /* Transition FX */
+        #motion-blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0);
+            pointer-events: none;
+            transition: backdrop-filter 0.5s ease;
+        }
+
+        .active-blur #motion-blur-overlay {
+            backdrop-filter: blur(30px) brightness(1.8);
+        }
+
+        #portfolio-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* Timeline HUD */
+        .timeline-viewport {
+            perspective: 2000px;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            overflow: hidden;
+            z-index: 50;
+        }
+
+        .timeline-container {
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateY(-10deg) rotateX(6deg);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding-left: 50vw;
+            will-change: transform, filter;
+        }
+
+        .track {
+            height: 110px;
+            background: rgba(15, 15, 15, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            display: flex;
+            align-items: center;
+            min-width: 20000px;
+        }
+
+        .track::before {
+            content: attr(data-track);
+            position: absolute;
+            left: -70px;
+            font-family: 'JetBrains Mono';
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        /* Accurate Clip UI */
+        .clip {
+            position: absolute;
+            height: 85%;
+            border-radius: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #222;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .clip:hover {
+            transform: scale(1.05) translateZ(40px);
+            z-index: 100;
+            border-color: var(--accent-cyan);
+        }
+
+        .clip-header {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .fx-tag {
+            background: #555;
+            color: black;
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 1px;
+            font-weight: 800;
+        }
+
+        .video-clip {
+            background-color: var(--pr-video);
+        }
+
+        .audio-clip {
+            background-color: var(--pr-audio);
+        }
+
+        .playhead {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background: #4ea8ff;
+            z-index: 200;
+            pointer-events: none;
+            box-shadow: 0 0 20px rgba(78, 168, 255, 0.6);
+        }
+
+        .fame-viewport {
+            perspective: 2000px;
+            padding: 100px 0;
+        }
+
+        .fame-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+        }
+
+        .fame-card {
+            position: relative;
+            aspect-ratio: 9/16;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .fame-card:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
+        }
+
+        .luxury-glass {
+            background: rgba(12, 12, 14, 0.8);
+            backdrop-filter: blur(40px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .scroll-spacer {
+            height: 600vh;
+            /* Adjust this to change how much you scroll to traverse timeline */
+            position: relative;
+        }
+
+        #video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 6000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content {
+            width: 92%;
+            max-width: 1500px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 1px solid var(--glass-border);
+            position: relative;
+        }
+
+        #close-modal {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            color: white;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            cursor: pointer;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: color 0.3s ease;
+            z-index: 100;
+        }
+
+        #close-modal:hover {
+            color: var(--accent-cyan);
+        }
+
+        @keyframes glitch-flicker {
+            0% {
+                opacity: 1;
+                transform: skew(0);
+                text-shadow: 0 0 0 transparent;
+            }
+
+            5% {
+                opacity: 0.8;
+                transform: skew(2deg);
+                text-shadow: 4px 0 var(--accent-magenta), -4px 0 var(--accent-cyan);
+            }
+
+            10% {
+                opacity: 1;
+                transform: skew(-2deg);
+                text-shadow: -4px 0 var(--accent-magenta), 4px 0 var(--accent-cyan);
+            }
+
+            15% {
+                opacity: 1;
+                transform: skew(0);
+                text-shadow: 0 0 0 transparent;
+            }
+
+            100% {
+                opacity: 1;
+                transform: skew(0);
+                text-shadow: 0 0 0 transparent;
+            }
+        }
+
+        .cyber-glitch {
+            animation: glitch-flicker 4s infinite;
+        }
+
+        .cyber-glitch:hover {
+            animation: glitch-flicker 0.1s infinite;
+        }
+    </style>
+</head>
+
+<body class="overflow-x-hidden">
+
+    <div class="mesh-bg"></div>
+    <div class="grid-overlay"></div>
+    <canvas id="particle-canvas"></canvas>
+    <div id="motion-blur-overlay"></div>
+
+    <!-- Navigation -->
+    <nav
+        class="fixed top-0 w-full z-[3000] p-8 flex justify-between items-center bg-transparent backdrop-blur-md border-b border-white/5">
+        <div class="flex items-center gap-4">
+            <div
+                class="w-12 h-12 bg-white rounded flex items-center justify-center adobe-black text-black text-2xl shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                X</div>
+            <div class="flex flex-col">
+                <span class="adobe-black uppercase text-base tracking-tight">XYAMIZ.ani</span>
+                <span class="text-[9px] mono text-cyan-400 font-bold uppercase tracking-[0.2em]">Protocol v6.0 // High
+                    Fidelity</span>
+            </div>
+        </div>
+        <div class="hidden md:flex gap-12 text-[11px] adobe-black uppercase tracking-wider text-gray-500">
+            <a href="#hero" class="hover:text-cyan-400 transition-colors">Vision</a>
+            <a href="#fame" class="hover:text-cyan-400 transition-colors">Realistic Performer</a>
+            <a href="#contact" class="hover:text-cyan-400 transition-colors">Terminal</a>
+        </div>
+        <button
+            class="mono text-[10px] font-bold border border-cyan-500/30 px-6 py-2 rounded-sm text-cyan-400 hover:bg-cyan-500 hover:text-black transition-all">
+            AUTH_SYS
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero"
+        class="min-h-screen flex flex-col items-center justify-center pt-24 px-6 relative overflow-hidden">
+        <div class="scissor-container">
+            <div class="scissor-body" id="scissor-rig">
+                <svg viewBox="0 0 100 100" class="scissor-svg" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M30 40 C 20 40, 20 60, 30 60 C 40 60, 45 55, 50 50 L 95 95 M 30 40 C 40 40, 45 45, 50 50 L 95 5"
+                        stroke="white" stroke-width="0.3" fill="none" opacity="0.4" />
+                    <circle cx="30" cy="40" r="14" stroke="white" stroke-width="0.3" fill="none" />
+                    <circle cx="30" cy="60" r="14" stroke="white" stroke-width="0.3" fill="none" />
+                    <circle cx="50" cy="50" r="1.5" fill="white" />
+                </svg>
+            </div>
+        </div>
+
+        <div class="text-center z-10 max-w-7xl">
+            <h2 class="text-cyan-400 adobe-black uppercase mb-10 opacity-70 flex flex-col items-center gap-4">
+                <span class="text-xs md:text-sm tracking-[2em]">Welcome to</span>
+                <span class="text-4xl md:text-5xl lg:text-7xl tracking-[0.2em] font-black cyber-glitch"
+                    style="font-family: 'JetBrains Mono', monospace; text-shadow: var(--cyber-glow);">XYAMIZ
+                    ANIMATION</span>
+            </h2>
+            <h1
+                class="text-8xl md:text-[14rem] adobe-black uppercase leading-[0.7] tracking-tighter mb-10 cyber-glitch transition-all">
+                RAW TO <br> <span
+                    class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-white to-magenta-500">RARE.</span>
+            </h1>
+            <p
+                class="adobe-bold text-gray-500 text-xl md:text-3xl tracking-[0.5em] uppercase max-w-5xl mx-auto leading-relaxed mb-24">
+                Interrupting the Patterns
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-12 justify-center items-center">
+                <div onclick="openProject('long')" class="pr-file-btn group">
+                    <div class="pr-icon-tag">Pr</div>
+                    <div class="text-left">
+                        <div class="adobe-black text-sm text-white uppercase tracking-wider group-hover:text-cyan-400">
+                            LONG_FORM_PROJECT.prproj</div>
+                        <div class="mono text-[9px] text-gray-500 uppercase">Archive: Narrative Cut</div>
+                    </div>
+                </div>
+                <div onclick="openProject('short')" class="pr-file-btn group">
+                    <div class="pr-icon-tag">Pr</div>
+                    <div class="text-left">
+                        <div
+                            class="adobe-black text-sm text-white uppercase tracking-wider group-hover:text-magenta-400">
+                            SHORT_FORM_PROJECT.prproj</div>
+                        <div class="mono text-[9px] text-gray-500 uppercase">Archive: Pattern Break</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Portfolio 3D Timeline Section -->
+    <div id="portfolio-section">
+        <section id="portfolio" class="relative">
+            <div class="timeline-viewport">
+                <div class="playhead"></div>
+                <div class="timeline-container" id="timeline">
+                    <!-- Video Track 2 -->
+                    <div class="track" data-track="V2">
+                        <div class="clip video-clip" style="left: 400px; width: 800px;"
+                            data-video-link="https://youtu.be/TwzjS9p6Jdw">
+                            <div class="clip-header"><span class="fx-tag">fx</span> YT_Clip_03.mp4</div>
+                            <div
+                                class="h-full w-full bg-cover opacity-50 relative overflow-hidden flex items-center justify-center">
+                                <iframe width="100%" height="150%"
+                                    src="https://www.youtube.com/embed/TwzjS9p6Jdw?autoplay=1&mute=1&controls=0&loop=1&playlist=TwzjS9p6Jdw"
+                                    frameborder="0" style="pointer-events: none;"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="clip video-clip" style="left: 2600px; width: 700px;"
+                            data-video-link="https://drive.google.com/file/d/1qYVPUJJsQHfFknwPCoqLovKDwK9M6UDy/view">
+                            <div class="clip-header"><span class="fx-tag">fx</span> GD_Clip_02.mp4</div>
+                        </div>
+                    </div>
+                    <!-- Video Track 1 -->
+                    <div class="track" data-track="V1">
+                        <div class="clip video-clip" style="left: 100px; width: 1000px;"
+                            data-video-link="https://youtu.be/XedwafukhoE">
+                            <div class="clip-header"><span class="fx-tag">fx</span> YT_Clip_01.mp4</div>
+                            <div
+                                class="h-full w-full bg-cover opacity-50 relative overflow-hidden flex items-center justify-center">
+                                <iframe width="100%" height="150%"
+                                    src="https://www.youtube.com/embed/XedwafukhoE?autoplay=1&mute=1&controls=0&loop=1&playlist=XedwafukhoE"
+                                    frameborder="0" style="pointer-events: none;"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="clip video-clip" style="left: 1300px; width: 1200px;"
+                            data-video-link="https://youtu.be/jdGvsbLG5rE">
+                            <div class="clip-header"><span class="fx-tag">fx</span> YT_Clip_02.mp4</div>
+                            <div
+                                class="h-full w-full bg-cover opacity-50 relative overflow-hidden flex items-center justify-center">
+                                <iframe width="100%" height="150%"
+                                    src="https://www.youtube.com/embed/jdGvsbLG5rE?autoplay=1&mute=1&controls=0&loop=1&playlist=jdGvsbLG5rE"
+                                    frameborder="0" style="pointer-events: none;"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="clip video-clip" style="left: 2700px; width: 900px;"
+                            data-video-link="https://youtu.be/ZHHUX2lx2Vw">
+                            <div class="clip-header"><span class="fx-tag">fx</span> YT_Clip_04.mp4</div>
+                            <div
+                                class="h-full w-full bg-cover opacity-50 relative overflow-hidden flex items-center justify-center">
+                                <iframe width="100%" height="150%"
+                                    src="https://www.youtube.com/embed/ZHHUX2lx2Vw?autoplay=1&mute=1&controls=0&loop=1&playlist=ZHHUX2lx2Vw"
+                                    frameborder="0" style="pointer-events: none;"></iframe>
+                            </div>
+                        </div>
+
+                        <div class="clip video-clip" style="left: 3800px; width: 1100px;"
+                            data-video-link="https://drive.google.com/file/d/1NOXC5yjbmMjEMHYuK04JNIODtEv7BGnU/view">
+                            <div class="clip-header"><span class="fx-tag">fx</span> GD_Clip_01.mp4</div>
+                        </div>
+
+                        <div class="clip video-clip" style="left: 5100px; width: 1500px;"
+                            data-video-link="https://drive.google.com/file/d/1U_N2E7HSI82dcVbxDHT0xqcrpJB5hpDp/view">
+                            <div class="clip-header"><span class="fx-tag">fx</span> GD_Clip_03.mp4</div>
+                        </div>
+                    </div>
+                    <!-- Audio Track 1 -->
+                    <div class="track" data-track="A1">
+                        <div class="clip audio-clip" style="left: 100px; width: 10000px;">
+                            <div class="clip-header"><span class="fx-tag">fx</span> Full_SDR_Audio_Master.wav</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Scroll space for timeline -->
+            <div class="scroll-spacer"></div>
+        </section>
+    </div>
+
+    <!-- Realistic Performer Gallery -->
+    <section id="fame" class="min-h-screen py-48 px-6">
+        <div class="text-center mb-40">
+            <h3 class="text-7xl adobe-black uppercase mb-8 italic tracking-tighter text-white">Realistic Performer</h3>
+            <p class="mono text-xs text-cyan-400 uppercase tracking-[1.2em]">Viral Integrity // Global Reach Metrics</p>
+        </div>
+        <div class="fame-viewport">
+            <div class="fame-grid" id="fame-grid">
+                <div class="fame-card" data-video-link="https://youtu.be/jdGvsbLG5rE">
+                    <video loop muted playsinline autoplay src="https://www.w3schools.com/html/movie.mp4"></video>
+                    <div class="p-8 absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent">
+                        <span class="adobe-black text-2xl text-cyan-400">1.2M+ Views</span>
+                        <h4 class="text-lg adobe-black uppercase">Cyber Narrative</h4>
+                    </div>
+                </div>
+                <div class="fame-card" data-video-link="https://youtu.be/TwzjS9p6Jdw">
+                    <video loop muted playsinline autoplay src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+                    <div class="p-8 absolute bottom-0 w-full bg-gradient-to-t from-black to-transparent">
+                        <span class="adobe-black text-2xl text-magenta-400">5.4M+ Views</span>
+                        <h4 class="text-lg adobe-black uppercase">Pattern Disruption</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Terminal -->
+    <section id="contact" class="min-h-screen flex flex-col items-center justify-center px-6 py-40">
+        <div
+            class="luxury-glass max-w-5xl w-full p-20 rounded-lg border-white/5 border shadow-[0_0_100px_rgba(0,242,255,0.05)]">
+            <div class="mb-20 text-center">
+                <h3 class="text-6xl adobe-black uppercase mb-6 tracking-tighter text-cyan-400">Initiate Render</h3>
+                <p class="mono text-xs text-gray-500 uppercase tracking-[1em]">Booking Terminal // System Active</p>
+            </div>
+            <form class="space-y-16">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+                    <input
+                        class="bg-transparent border-b border-white/10 py-6 mono text-xl outline-none focus:border-cyan-400 transition-all"
+                        placeholder="Project Principal" type="text">
+                    <input
+                        class="bg-transparent border-b border-white/10 py-6 mono text-xl outline-none focus:border-cyan-400 transition-all"
+                        placeholder="Mail Link" type="email">
+                </div>
+                <button
+                    class="bg-cyan-400 text-black px-16 py-6 adobe-black uppercase text-sm hover:bg-white transition-all mx-auto block tracking-[0.5em] rounded-sm">
+                    START_SEQUENCE_INGEST
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <div id="video-modal">
+        <div class="modal-content" id="modal-container">
+            <div id="close-modal">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                BACK
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-32 px-6 border-t border-white/5 relative z-10 text-center">
+        <div class="flex justify-center gap-16 mb-16">
+            <a href="#"
+                class="mono text-xs text-gray-500 hover:text-cyan-400 uppercase tracking-[0.5em] transition-colors">Instagram</a>
+            <a href="#"
+                class="mono text-xs text-gray-500 hover:text-magenta-400 uppercase tracking-[0.5em] transition-colors">Discord</a>
+            <a href="#"
+                class="mono text-xs text-gray-500 hover:text-cyan-400 uppercase tracking-[0.5em] transition-colors">Twitter</a>
+        </div>
+        <div class="opacity-20 mono text-[10px] uppercase tracking-widest">
+            © 2026 XYAMIZ Animation // Raw to Rare Protocol // v6.0.4
+        </div>
+    </footer>
+
+    <script>
+        const scissorRig = document.getElementById('scissor-rig');
+        const timeline = document.getElementById('timeline');
+        const portfolioSection = document.getElementById('portfolio-section');
+        let lastScrollTop = 0;
+        let currentX = 0;
+
+        // Dynamic Motion Blur based on Scroll Velocity
+        function renderLoop() {
+            const scrollTop = window.scrollY;
+            const velocity = Math.abs(scrollTop - lastScrollTop);
+            lastScrollTop = scrollTop;
+
+            // Calculate blur and scale based on speed
+            const blurAmount = Math.min(velocity / 12, 18);
+            const scaleX = 1 + (blurAmount / 120);
+
+            if (portfolioSection.style.display === 'block') {
+                const port = document.getElementById('portfolio');
+                const portTop = port.offsetTop;
+                const portHeight = document.querySelector('.scroll-spacer').offsetHeight;
+
+                if (scrollTop >= portTop && scrollTop <= portTop + portHeight) {
+                    const progress = (scrollTop - portTop) / portHeight;
+                    currentX = progress * -14000;
+                }
+
+                // Apply visual effects
+                timeline.style.filter = `blur(${blurAmount}px)`;
+                timeline.style.transform = `rotateY(-10deg) rotateX(6deg) translateX(${currentX}px) scaleX(${scaleX})`;
+            }
+
+            requestAnimationFrame(renderLoop);
+        }
+        renderLoop();
+
+        // Project Opening Transition
+        function openProject(type) {
+            document.body.classList.add('active-blur');
+
+            setTimeout(() => {
+                document.body.classList.remove('active-blur');
+                portfolioSection.style.display = 'block';
+                setTimeout(() => {
+                    portfolioSection.style.opacity = '1';
+                    document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
+                }, 50);
+            }, 450);
+        }
+
+        // Particle System
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function initParticles() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 80; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5, density: (Math.random() * 25) + 1,
+                    color: `rgba(0, 242, 255, ${Math.random() * 0.12})`
+                });
+            }
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let p of particles) {
+                p.x += Math.sin(Date.now() * 0.0006 + p.density) * 0.15;
+                p.y += Math.cos(Date.now() * 0.0006 + p.density) * 0.15;
+                ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        window.addEventListener('resize', initParticles);
+        initParticles(); animateParticles();
+
+        // 3D Tilt HUD
+        document.addEventListener('mousemove', (e) => {
+            const rotX = (e.clientY - window.innerHeight / 2) / 45;
+            const rotY = (e.clientX - window.innerWidth / 2) / 45;
+            scissorRig.style.transform = `rotateX(${-rotX}deg) rotateY(${rotY}deg)`;
+            const fameGrid = document.getElementById('fame-grid');
+            if (fameGrid) fameGrid.style.transform = `rotateX(${-rotX / 2.5}deg) rotateY(${rotY / 2.5}deg)`;
+        });
+
+        // Modals & Links
+        const videoModal = document.getElementById('video-modal');
+        const modalContainer = document.getElementById('modal-container');
+        const closeModal = document.getElementById('close-modal');
+        document.querySelectorAll('.clip, .fame-card').forEach(clip => {
+            clip.addEventListener('click', () => {
+                const link = clip.getAttribute('data-video-link');
+                if (!link) return;
+
+                let formatted = link;
+
+                // Format Google Drive Links for Embed
+                if (link.includes('drive.google.com')) {
+                    const id = link.match(/\/file\/d\/([^\/]+)/)?.[1] || link.match(/id=([^\&]+)/)?.[1];
+                    if (id) formatted = `https://drive.google.com/file/d/${id}/preview?autoplay=1`;
+                }
+                // Format YouTube short links for Embed
+                else if (link.includes('youtu.be/')) {
+                    const id = link.split('youtu.be/')[1].split('?')[0];
+                    formatted = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                }
+                // Format YouTube watch links for Embed
+                else if (link.includes('youtube.com/watch') || link.includes('youtube.com/embed/')) {
+                    const url = new URL(link);
+                    const id = url.searchParams.get('v') || link.split('embed/')[1].split('?')[0];
+                    if (id) formatted = `https://www.youtube.com/embed/${id}?autoplay=1`;
+                }
+
+                modalContainer.querySelectorAll('video, iframe').forEach(m => m.remove());
+                const iframe = document.createElement('iframe');
+                iframe.src = formatted;
+                iframe.className = "w-full h-full";
+                iframe.setAttribute('allowfullscreen', 'true');
+                iframe.setAttribute('frameborder', '0');
+                iframe.setAttribute('allow', 'autoplay; fullscreen');
+                modalContainer.appendChild(iframe);
+
+                videoModal.style.display = 'flex';
+            });
+        });
+        closeModal.addEventListener('click', () => {
+            videoModal.style.display = 'none';
+            modalContainer.querySelectorAll('video, iframe').forEach(m => m.remove());
+        });
+
+        // Intersection Observer for Section Entrance
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('section, footer').forEach(section => {
+            if (section.id !== 'portfolio') {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(60px)';
+                section.style.transition = 'all 1.2s cubic-bezier(0.16, 1, 0.3, 1)';
+                observer.observe(section);
+            }
+        });
+    </script>
+</body>
+
+</html>
